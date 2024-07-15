@@ -1,10 +1,5 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { distance, radians } from "three/examples/jsm/nodes/Nodes.js";
-import { Pane } from "tweakpane";
-
-// initialize pane
-const pane = new Pane();
 
 // initialize the scene
 const scene = new THREE.Scene();
