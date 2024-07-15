@@ -20,7 +20,7 @@ const mercuryTexture = textureLoader.load(
   '/textures/2k_mercury.jpg'
 );
 const venusTexture = textureLoader.load(
-  '/textures/venus_surface.jpg'
+  '/textures/2k_venus_surface.jpg'
 );
 const earthTexture = textureLoader.load(
   '/textures/2k_earth_daymap.jpg'
@@ -94,7 +94,7 @@ const planets = [
   },
   {
     name: 'Earth',
-    radians: 1,
+    radius: 1,
     distance: 20,
     speed: 0.005,
     material: earthMaterial,
@@ -129,8 +129,48 @@ const planets = [
       }
     ]
   }
-]
+];
 
+const createPlanet = (planet) => {
+  const planetMesh = new THREE.Mesh(
+    sphereGeometry,
+    planet.material
+  );
+  planetMesh.scale.setScalar(planet.radius);
+  planetMesh.position.x = planet.distance;
+  return planetMesh;
+};
+
+const createMoon = (moon) => {
+  const moonMesh = new THREE.Mesh(
+    sphereGeometry,
+    moonMaterial
+  );
+  moonMesh.scale.setScalar(moon.radius);
+  moonMesh.position.x = moon.distance;
+  return moonMesh;
+}
+
+const planetMeshes = planets.map((planet) => {
+
+  const planetMesh = createPlanet(planet);
+  scene.add(planetMesh);
+
+  // loop through earch moon create the moon
+  planet.moons.forEach((moon) => {
+    const moonMesh = createMoon(moon)
+    planetMesh.add(moonMesh);
+  })
+
+  return planetMesh;
+})
+
+// add lights
+const ambientLight = new THREE.AmbientLight(
+  0xffffff,
+  0.5
+);
+scene.add(ambientLight)
 
 // initialize the camera
 const camera = new THREE.PerspectiveCamera(
