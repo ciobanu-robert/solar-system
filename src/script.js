@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { distance, radians } from "three/examples/jsm/nodes/Nodes.js";
 import { Pane } from "tweakpane";
 
 // initialize pane
@@ -24,32 +25,62 @@ const sun = new THREE.Mesh(
 sun.scale.setScalar(5);
 scene.add(sun);
 
-const earthMaterial = new THREE.MeshBasicMaterial(
+const planets = [
   {
-    color: 'blue'
-  }
-);
-
-const earth = new THREE.Mesh(
-  sphereGeometry,
-  earthMaterial
-);
-
-scene.add(earth);
-
-const moonMaterial = new THREE.MeshBasicMaterial(
+    name: 'Merciry',
+    radius: 0.5,
+    distance: 10,
+    speed: 0.01,
+    material: mercuryMaterial,
+    moons: [],
+  },
   {
-    color: 'grey'
+    name: 'Venus',
+    radius: 0.8,
+    distance: 15,
+    speed: 0.005,
+    material: venusMaterial,
+    moons: [],
+  },
+  {
+    name: 'Earth',
+    radians: 1,
+    distance: 20,
+    speed: 0.005,
+    material: earthMaterial,
+    moons: [
+      {
+        name: 'Moon',
+        radius: 0.3,
+        distance: 3,
+        speed: 0.015,
+      },
+    ]
+  },
+  {
+    name: 'Mars',
+    radius: 0.7,
+    distance: 25,
+    speed: 0.003,
+    material: marsMaterial,
+    moons: [
+      {
+        name: 'Phobos',
+        radius: 0.1,
+        distance: 2,
+        speed: 0.02,
+      },
+      {
+        name: 'Deimos',
+        radius: 0.2,
+        distance: 3,
+        speed: 0.015,
+        color: 0xffffff,
+      }
+    ]
   }
-);
+]
 
-const moon = new THREE.Mesh(
-  sphereGeometry,
-  moonMaterial
-);
-moon.scale.setScalar(0.3);
-moon.position.x = 2;
-earth.add(moon);
 
 // initialize the camera
 const camera = new THREE.PerspectiveCamera(
@@ -85,16 +116,6 @@ const clock = new THREE.Clock()
 
 // render loop
 const renderloop = () => {
-  const elapsedTime = clock.getElapsedTime();
-
-  earth.rotation.y += 0.01;
-  earth.position.x = Math.sin(elapsedTime) * 10;
-  earth.position.z = Math.cos(elapsedTime) * 10;
-
-  moon.position.x = Math.sin(elapsedTime) * 2;
-  moon.position.z = Math.cos(elapsedTime) * 2;
-
-
   controls.update();
   renderer.render(scene, camera);
   window.requestAnimationFrame(renderloop);
