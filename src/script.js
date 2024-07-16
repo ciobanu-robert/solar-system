@@ -25,6 +25,15 @@ const earthTexture = textureLoader.load(
 const marsTexture = textureLoader.load(
   '/textures/2k_mars.jpg'
 );
+const jupiterTexture = textureLoader.load(
+  '/textures/2k_jupiter.jpg'
+);
+const saturnTexture = textureLoader.load(
+  '/textures/2k_saturn.jpg'
+);
+const saturnRingTexture = textureLoader.load(
+  '/textures/2k_saturn_ring_alpha.png'
+)
 const moonTexture = textureLoader.load(
   '/textures/2k_moon.jpg'
 );
@@ -63,6 +72,23 @@ const marsMaterial = new THREE.MeshStandardMaterial(
     map: marsTexture
   }
 );
+const jupiterMaterial = new THREE.MeshStandardMaterial(
+  {
+    map: jupiterTexture
+  }
+);
+const saturnMaterial = new THREE.MeshStandardMaterial(
+  {
+    map: saturnTexture
+  }
+);
+const saturnRingMaterial = new THREE.MeshStandardMaterial(
+  {
+    map: saturnRingTexture,
+    side: THREE.DoubleSide,
+    transparent: true,
+  }
+);
 const moonMaterial = new THREE.MeshStandardMaterial(
   {
     map: moonTexture
@@ -71,6 +97,13 @@ const moonMaterial = new THREE.MeshStandardMaterial(
 
 // add stuff here
 const sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
+const ringGeometry = new THREE.RingGeometry(1.5, 6, 64)
+var pos = ringGeometry.attributes.position;
+var v3 = new THREE.Vector3();
+for (let i = 0; i < pos.count; i++){
+  v3.fromBufferAttribute(pos, i);
+  ringGeometry.attributes.uv.setXY(i, v3.length() < 4 ? 0 : 1, 1);
+};
 const sunMaterial = new THREE.MeshBasicMaterial(
   {
     map: sunTexture
@@ -135,10 +168,87 @@ const planets = [
         radius: 0.2,
         distance: 3,
         speed: 0.015,
-        color: 0xffffff,
       }
     ]
-  }
+  },
+  {
+    name: 'Jupiter',
+    radius: 2,
+    distance: 40,
+    speed: 0.002,
+    material: jupiterMaterial,
+    moons: [
+      {
+        name: 'Europa',
+        radius: 0.3,
+        distance: 2,
+        speed: 0.02,
+      },
+      {
+        name: 'Io',
+        radius: 0.25,
+        distance: 3,
+        speed: 0.015,
+      },
+      {
+        name: 'Granymede',
+        radius: 0.2,
+        distance: 4,
+        speed: 0.01,
+      },
+      {
+        name: 'Calisto',
+        radius: 0.1,
+        distance: 4.5,
+        speed: 0.005,
+      },
+      {
+        name: 'Kallichore',
+        radius: 0.05,
+        distance: 5,
+        speed: 0.003,
+      },
+    ],
+  },
+  {
+    name: 'Saturn',
+    radius: 1.8,
+    distance: 60,
+    speed: 0.001,
+    material: saturnMaterial,
+    moons: [
+      // {
+      //   name: 'Europa',
+      //   radius: 0.3,
+      //   distance: 2,
+      //   speed: 0.02,
+      // },
+      // {
+      //   name: 'Io',
+      //   radius: 0.25,
+      //   distance: 3,
+      //   speed: 0.015,
+      // },
+      // {
+      //   name: 'Granymede',
+      //   radius: 0.2,
+      //   distance: 4,
+      //   speed: 0.01,
+      // },
+      // {
+      //   name: 'Calisto',
+      //   radius: 0.1,
+      //   distance: 4.5,
+      //   speed: 0.005,
+      // },
+      // {
+      //   name: 'Kallichore',
+      //   radius: 0.05,
+      //   distance: 5,
+      //   speed: 0.003,
+      // },
+    ],
+  },
 ];
 
 const createPlanet = (planet) => {
@@ -161,10 +271,21 @@ const createMoon = (moon) => {
   return moonMesh;
 }
 
-const planetMeshes = planets.map((planet) => {
+const planetMeshes = planets.map((planet, index) => {
 
   const planetMesh = createPlanet(planet);
   scene.add(planetMesh);
+
+  if (index === 5) {
+    const rings = new THREE.Mesh(
+      ringGeometry,
+      saturnRingMaterial,
+    );
+
+    rings.rotateX(1.6);
+    planetMesh.add(rings);
+  }
+  console.log(index)
 
   // loop through earch moon create the moon
   planet.moons.forEach((moon) => {
@@ -178,7 +299,7 @@ const planetMeshes = planets.map((planet) => {
 // add lights
 const ambientLight = new THREE.AmbientLight(
   0xffffff,
-  0.1
+  0.5
 );
 scene.add(ambientLight)
 
@@ -228,9 +349,11 @@ const renderloop = () => {
     planet.position.z = Math.cos(planet.rotation.y) * planets[planetIndex].distance;
 
     planet.children.forEach((moon, moonIndex) => {
-      moon.rotation.y += planets[planetIndex].moons[moonIndex].speed;
-      moon.position.x = Math.sin(moon.rotation.y) * planets[planetIndex].moons[moonIndex].distance;
-      moon.position.z = Math.cos(moon.rotation.y) * planets[planetIndex].moons[moonIndex].distance;
+      if (planetIndex != 5) {
+        moon.rotation.y += planets[planetIndex].moons[moonIndex].speed;
+        moon.position.x = Math.sin(moon.rotation.y) * planets[planetIndex].moons[moonIndex].distance;
+        moon.position.z = Math.cos(moon.rotation.y) * planets[planetIndex].moons[moonIndex].distance;
+      }
     });
   })
 
