@@ -33,7 +33,13 @@ const saturnTexture = textureLoader.load(
 );
 const saturnRingTexture = textureLoader.load(
   '/textures/2k_saturn_ring_alpha.png'
-)
+);
+const uranusTexture = textureLoader.load(
+  '/textures/2k_uranus.jpg'
+);
+const neptuneTexture = textureLoader.load(
+  '/textures/2k_neptune.jpg'
+);
 const moonTexture = textureLoader.load(
   '/textures/2k_moon.jpg'
 );
@@ -85,8 +91,17 @@ const saturnMaterial = new THREE.MeshStandardMaterial(
 const saturnRingMaterial = new THREE.MeshStandardMaterial(
   {
     map: saturnRingTexture,
-    side: THREE.DoubleSide,
     transparent: true,
+  }
+);
+const uranusMaterial = new THREE.MeshStandardMaterial(
+  {
+    map: uranusTexture
+  }
+);
+const neptuneMaterial = new THREE.MeshStandardMaterial(
+  {
+    map: neptuneTexture
   }
 );
 const moonMaterial = new THREE.MeshStandardMaterial(
@@ -181,14 +196,14 @@ const planets = [
       {
         name: 'Europa',
         radius: 0.3,
-        distance: 2,
-        speed: 0.02,
+        distance: 3,
+        speed: 0.015,
       },
       {
         name: 'Io',
         radius: 0.25,
-        distance: 3,
-        speed: 0.015,
+        distance: 2,
+        speed: 0.02,
       },
       {
         name: 'Granymede',
@@ -213,41 +228,57 @@ const planets = [
   {
     name: 'Saturn',
     radius: 1.8,
-    distance: 60,
+    distance: 65,
     speed: 0.001,
     material: saturnMaterial,
+    moons: [],
+  },
+  {
+    name: 'Uranus',
+    radius: 1.3,
+    distance: 90,
+    speed: 0.0005,
+    material: uranusMaterial,
     moons: [
-      // {
-      //   name: 'Europa',
-      //   radius: 0.3,
-      //   distance: 2,
-      //   speed: 0.02,
-      // },
-      // {
-      //   name: 'Io',
-      //   radius: 0.25,
-      //   distance: 3,
-      //   speed: 0.015,
-      // },
-      // {
-      //   name: 'Granymede',
-      //   radius: 0.2,
-      //   distance: 4,
-      //   speed: 0.01,
-      // },
-      // {
-      //   name: 'Calisto',
-      //   radius: 0.1,
-      //   distance: 4.5,
-      //   speed: 0.005,
-      // },
-      // {
-      //   name: 'Kallichore',
-      //   radius: 0.05,
-      //   distance: 5,
-      //   speed: 0.003,
-      // },
+      {
+        name: 'Miranda',
+        radius: 0.05,
+        distance: 3,
+        speed: 0.015,
+      },
+      {
+        name: 'Ariel',
+        radius: 0.1,
+        distance: 2,
+        speed: 0.02,
+      },
+      {
+        name: 'Umbriel',
+        radius: 0.2,
+        distance: 4,
+        speed: 0.01,
+      },
+      {
+        name: 'TItania',
+        radius: 0.25,
+        distance: 4.5,
+        speed: 0.005,
+      },
+      {
+        name: 'Oberon',
+        radius: 0.3,
+        distance: 5,
+        speed: 0.003,
+      },
     ],
+  },
+  {
+    name: 'Neptune',
+    radius: 1.2,
+    distance: 110,
+    speed: 0.0002,
+    material: neptuneMaterial,
+    moons: [],
   },
 ];
 
@@ -268,6 +299,7 @@ const createMoon = (moon) => {
   );
   moonMesh.scale.setScalar(moon.radius);
   moonMesh.position.x = moon.distance;
+  moonMesh.receiveShadow = true;
   return moonMesh;
 }
 
@@ -277,16 +309,25 @@ const planetMeshes = planets.map((planet, index) => {
   scene.add(planetMesh);
 
   if (index === 5) {
-    const rings = new THREE.Mesh(
+    planetMesh.castShadow = true;
+
+    const rings1 = new THREE.Mesh(
       ringGeometry,
       saturnRingMaterial,
     );
-
-    rings.rotateX(1.6);
-    planetMesh.add(rings);
+    const rings2 = new THREE.Mesh(
+      ringGeometry,
+      saturnRingMaterial,
+    );
+    
+    const angle = 1.7;
+    rings1.rotateX(1.5);
+    rings2.rotateX(-1.7);
+    rings1.receiveShadow = true;
+    rings2.receiveShadow = true;
+    planetMesh.add(rings1);
+    planetMesh.add(rings2);
   }
-  console.log(index)
-
   // loop through earch moon create the moon
   planet.moons.forEach((moon) => {
     const moonMesh = createMoon(moon)
@@ -299,14 +340,19 @@ const planetMeshes = planets.map((planet, index) => {
 // add lights
 const ambientLight = new THREE.AmbientLight(
   0xffffff,
-  0.5
+  0.3
 );
 scene.add(ambientLight)
 
 const pointLight = new THREE.PointLight(
   0xffffff,
-  2
+  1
 );
+pointLight.castShadow = true;
+pointLight.shadow.mapSize.width = 512;
+pointLight.shadow.mapSize.height = 512;
+pointLight.shadow.camera.near = 0.5;
+pointLight.shadow.camera.far = 500;
 scene.add(pointLight);
 
 // initialize the camera
@@ -322,6 +368,8 @@ camera.position.y = 5;
 // initialize the renderer
 const canvas = document.querySelector("canvas.threejs");
 const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFShadowMap;
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
@@ -337,9 +385,6 @@ window.addEventListener("resize", () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
-// initialize a clock
-const clock = new THREE.Clock()
 
 // render loop
 const renderloop = () => {
