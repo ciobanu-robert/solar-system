@@ -195,33 +195,27 @@ const planets = [
     moons: [
       {
         name: 'Europa',
-        radius: 0.3,
+        radius: 0.15,
         distance: 3,
         speed: 0.015,
       },
       {
         name: 'Io',
-        radius: 0.25,
+        radius: 0.2,
         distance: 2,
         speed: 0.02,
       },
       {
         name: 'Granymede',
-        radius: 0.2,
+        radius: 0.3,
         distance: 4,
         speed: 0.01,
       },
       {
         name: 'Calisto',
-        radius: 0.1,
+        radius: 0.25,
         distance: 4.5,
         speed: 0.005,
-      },
-      {
-        name: 'Kallichore',
-        radius: 0.05,
-        distance: 5,
-        speed: 0.003,
       },
     ],
   },
@@ -278,7 +272,38 @@ const planets = [
     distance: 110,
     speed: 0.0002,
     material: neptuneMaterial,
-    moons: [],
+    moons: [
+      {
+        name: 'Proteus',
+        radius: 0.05,
+        distance: 1.5,
+        speed: 0.015,
+      },
+      {
+        name: 'Larissa',
+        radius: 0.1,
+        distance: 2,
+        speed: 0.02,
+      },
+      {
+        name: 'Galatea',
+        radius: 0.2,
+        distance: 3.5,
+        speed: 0.01,
+      },
+      {
+        name: 'Despina',
+        radius: 0.25,
+        distance: 4.1,
+        speed: 0.005,
+      },
+      {
+        name: 'Thalassa',
+        radius: 0.3,
+        distance: 5,
+        speed: 0.008,
+      },
+    ],
   },
 ];
 
